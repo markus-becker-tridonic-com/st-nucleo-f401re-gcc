@@ -16,11 +16,10 @@
  */
 /* Linker script to configure memory regions. */
 MEMORY
-{
-  VECTORS (rx)          : ORIGIN = 0x08000000, LENGTH = 0x00004000
-  CONFIG_DATA (rx)      : ORIGIN = 0x08004000, LENGTH = 0x00004000
-  FLASH (rx)            : ORIGIN = 0x08008000, LENGTH = 512K - 0x8000
-/*  CCM (rwx)           : ORIGIN = 0x10000000, LENGTH = 64K */
+{ 
+  START_PATTERN (rx)    : ORIGIN = 0x08008078, LENGTH = 0x8
+  VECTORS (rx)          : ORIGIN = 0x08008080, LENGTH = 0x00000400
+  FLASH (rx)            : ORIGIN = 0x08008400, LENGTH = 512K - 0x408
   RAM (rwx)             : ORIGIN = 0x20000194, LENGTH = 96k - 0x194
 }
 
@@ -55,19 +54,17 @@ ENTRY(Reset_Handler)
 
 SECTIONS
 {
+    .start_pattern :
+    {
+        KEEP(*(.start_pattern))    
+    } >START_PATTERN
+    
     .isr_vector :
     {
         __vector_table = .;
         KEEP(*(.isr_vector))
          . = ALIGN(4);
     } > VECTORS
-
-    .config_data :
-    {
-        __config_data = .;
-        KEEP(*(.config_data))
-         . = ALIGN(4);
-    } > CONFIG_DATA
     
     /* ensure that uvisor bss is at the beginning of memory */
     .uvisor.bss (NOLOAD):
